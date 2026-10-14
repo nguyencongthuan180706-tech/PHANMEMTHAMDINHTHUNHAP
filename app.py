@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Tiêu đề ứng dụng
-st.title("🏦 CHƯƠNG TRÌNH TÍNH CHỈ SỐ DTI")
+st.title("🏦 PHẦN MỀM THẨM ĐỊNH THU NHẬP KHÁCH HÀNG")
 st.write("Nhập thông tin khách hàng để tính toán khả năng vay vốn.")
 
 # Nhập thông tin khách hàng
