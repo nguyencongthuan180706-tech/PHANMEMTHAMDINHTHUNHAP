@@ -1,107 +1,99 @@
-# Kiểm tra dữ liệu
-if TN <= 0:
-    st.error("Thu nhập hàng tháng phải lớn hơn 0.")
-else:
-    # Tính tiền gốc phải trả hàng tháng
-    tien_goc_thang = STV / (THV * 12)
+import streamlit as st
 
-    # Tính tiền lãi phải trả hàng tháng
-    tien_lai_thang = STV * (LS / 100 / 12)
+# Tiêu đề ứng dụng
+st.title("🏦 CHƯƠNG TRÌNH TÍNH CHỈ SỐ DTI")
+st.write("Nhập thông tin khách hàng để tính toán khả năng vay vốn.")
 
-    # Tổng nghĩa vụ trả nợ hàng tháng
-    tong_no_thang = tien_goc_thang + tien_lai_thang + NC
+# Nhập thông tin khách hàng
+STV = st.number_input(
+    "Số tiền vay (VNĐ)",
+    min_value=0,
+    value=800_000_000,
+    step=10_000_000
+)
 
-    # Chi phí sinh hoạt của gia đình
-    tong_chi_phi_sinh_hoat = CPSH * SN
+THV = st.number_input(
+    "Thời hạn vay (năm)",
+    min_value=1,
+    value=5,
+    step=1
+)
 
-    # Thu nhập còn lại sau chi phí sinh hoạt
-    thu_nhap_sau_sinh_hoat = TN - tong_chi_phi_sinh_hoat
+LS = st.number_input(
+    "Lãi suất vay (%/năm)",
+    min_value=0.0,
+    value=12.0,
+    step=0.5
+)
 
-    # Kiểm tra thu nhập sau sinh hoạt
-    if thu_nhap_sau_sinh_hoat <= 0:
-        st.error(
-            "Thu nhập không đủ trang trải chi phí sinh hoạt. "
-            "Không thể tính DTI theo công thức này."
-        )
+TN = st.number_input(
+    "Thu nhập hàng tháng (VNĐ)",
+    min_value=0,
+    value=45_000_000,
+    step=1_000_000
+)
+
+NC = st.number_input(
+    "Khoản nợ cũ phải trả hàng tháng (VNĐ)",
+    min_value=0,
+    value=10_000_000,
+    step=1_000_000
+)
+
+CPSH = st.number_input(
+    "Chi phí sinh hoạt mỗi người/tháng (VNĐ)",
+    min_value=0,
+    value=4_000_000,
+    step=500_000
+)
+
+SN = st.number_input(
+    "Số người trong gia đình",
+    min_value=1,
+    value=3,
+    step=1
+)
+
+# Nút tính toán
+if st.button("TÍNH CHỈ SỐ DTI"):
+    if TN <= CPSH * SN:
+        st.error("Thu nhập không đủ chi trả chi phí sinh hoạt!")
+    elif THV <= 0:
+        st.error("Thời hạn vay phải lớn hơn 0!")
     else:
+        # Tính số tiền gốc phải trả hàng tháng
+        tien_goc_thang = STV / (THV * 12)
+
+        # Tính tiền lãi phải trả hàng tháng
+        tien_lai_thang = STV * (LS / 100 / 12)
+
+        # Tổng tiền phải trả hàng tháng cho khoản vay mới
+        tra_no_moi = tien_goc_thang + tien_lai_thang
+
+        # Tổng nghĩa vụ trả nợ hàng tháng
+        tong_no = tra_no_moi + NC
+
+        # Thu nhập còn lại sau chi phí sinh hoạt
+        thu_nhap_con_lai = TN - CPSH * SN
+
         # Tính chỉ số DTI
-        DTI = tong_no_thang / thu_nhap_sau_sinh_hoat
+        DTI = tong_no / thu_nhap_con_lai
 
-        st.subheader("📊 KẾT QUẢ TÍNH TOÁN")
+        # Hiển thị kết quả
+        st.subheader("📊 KẾT QUẢ")
 
-        col3, col4 = st.columns(2)
-
-        with col3:
-            st.metric(
-                label="Chỉ số DTI",
-                value=f"{DTI * 100:.2f}%"
-            )
-
-        with col4:
-            st.metric(
-                label="Ngưỡng DTI",
-                value="70%"
-            )
-
-        # Hiển thị chi tiết
-        with st.expander("Xem chi tiết cách tính"):
-            st.write(
-                f"**Tiền gốc phải trả/tháng:** "
-                f"{tien_goc_thang:,.0f} VNĐ"
-            )
-
-            st.write(
-                f"**Tiền lãi phải trả/tháng:** "
-                f"{tien_lai_thang:,.0f} VNĐ"
-            )
-
-            st.write(
-                f"**Tổng nghĩa vụ trả nợ/tháng:** "
-                f"{tong_no_thang:,.0f} VNĐ"
-            )
-
-            st.write(
-                f"**Tổng chi phí sinh hoạt/tháng:** "
-                f"{tong_chi_phi_sinh_hoat:,.0f} VNĐ"
-            )
-
-            st.write(
-                f"**Thu nhập sau sinh hoạt:** "
-                f"{thu_nhap_sau_sinh_hoat:,.0f} VNĐ"
-            )
-
-            st.write(
-                "**Công thức:** DTI = Tổng nghĩa vụ trả nợ "
-                "/ Thu nhập sau sinh hoạt × 100%"
-            )
-
-            st.write(
-                f"**Thay số:** DTI = "
-                f"{tong_no_thang:,.0f} / "
-                f"{thu_nhap_sau_sinh_hoat:,.0f} "
-                f"× 100%"
-            )
-
-        # Kết luận theo yêu cầu
-        if DTI < 0.70:
-            st.error(
-                "❌ KẾT LUẬN: KHÔNG ĐƯỢC VAY\n\n"
-                "Chỉ số DTI nhỏ hơn 70%."
-            )
-        else:
-            st.success(
-                "✅ KẾT LUẬN: ĐƯỢC VAY\n\n"
-                "Chỉ số DTI lớn hơn hoặc bằng 70%."
-            )
-
-        # Biểu đồ tiến độ DTI
-        st.subheader("📈 Biểu đồ chỉ số DTI")
-
-        st.progress(min(DTI, 1.0))
-
-        st.write(f"DTI hiện tại: {DTI * 100:.2f}%")
-        st.caption(
-            "Lưu ý: Kết quả chỉ mang tính tham khảo theo quy tắc "
-            "được thiết lập trong chương trình, không phải quyết "
-            "định phê duyệt tín dụng thực tế của ngân hàng."
+        st.metric(
+            label="Chỉ số DTI",
+            value=f"{DTI * 100:.2f}%"
         )
+
+        st.write(f"**Tiền gốc trả hàng tháng:** {tien_goc_thang:,.0f} VNĐ")
+        st.write(f"**Tiền lãi trả hàng tháng:** {tien_lai_thang:,.0f} VNĐ")
+        st.write(f"**Tổng nợ phải trả hàng tháng:** {tong_no:,.0f} VNĐ")
+        st.write(f"**Thu nhập còn lại sau sinh hoạt:** {thu_nhap_con_lai:,.0f} VNĐ")
+
+        # Kết luận theo điều kiện đề bài
+        if DTI < 0.7:
+            st.error("❌ KẾT LUẬN: KHÔNG ĐƯỢC VAY")
+        else:
+            st.success("✅ KẾT LUẬN: ĐƯỢC VAY")
