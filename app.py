@@ -94,6 +94,6 @@ if st.button("TÍNH CHỈ SỐ DTI"):
 
         # Kết luận theo điều kiện đề bài
         if DTI < 0.7:
-            st.error("❌ KẾT LUẬN: KHÔNG ĐƯỢC VAY")
+            st.error("✅ KẾT LUẬN: ĐƯỢC VAY")
         else:
-            st.success("✅ KẾT LUẬN: ĐƯỢC VAY")
+            st.success("❌ KẾT LUẬN: KHÔNG ĐƯỢC VAY")
